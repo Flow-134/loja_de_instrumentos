@@ -25,6 +25,7 @@ $totalClientes = $conn->query(
 </head>
 
 <body class="bg-slate-100">
+    Ola, <?= $_SESSION['cliente_nome'] ?? 'Visitante' ?>. Seja bem-vindo ao painel administrativo da loja de instrumentos musicais.
 
     <!-- Navbar -->
     <nav class="bg-slate-900 text-white shadow-lg">

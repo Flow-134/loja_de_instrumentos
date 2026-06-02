@@ -1,5 +1,6 @@
 <?php
 include("../conexao.php");
+include("../clientes/verificar.php");
 
 $stmt = $conn->prepare("SELECT instrumentos.*,categorias.nome AS categoria FROM instrumentos LEFT JOIN categorias
     ON instrumentos.id_categoria = categorias.id

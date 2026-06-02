@@ -1,6 +1,7 @@
 <?php
 
 include("../conexao.php");
+include("../clientes/verificar.php");
 
 $stmt = $conn->prepare("SELECT * FROM categorias");
 $stmt->execute();
