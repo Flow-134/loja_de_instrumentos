@@ -2,12 +2,17 @@
 include("../conexao.php");
 include("../clientes/verificar.php");
 
+$isAdmin = ($_SESSION['cliente_role'] ?? 'customer') === 'admin';
+$success = $_GET['success'] ?? '';
+$error = $_GET['error'] ?? '';
+
 $stmt = $conn->prepare("SELECT instrumentos.*,categorias.nome AS categoria FROM instrumentos LEFT JOIN categorias
     ON instrumentos.id_categoria = categorias.id
 ");
 
 $stmt->execute();
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -16,22 +21,44 @@ $stmt->execute();
     <title>Loja de Instrumentos</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 min-h-screen">
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-slate-100">
 
     <div class="max-w-7xl mx-auto py-10 px-4">
 
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-4xl font-bold text-slate-800">
-                🎸 Instrumentos
-            </h1>
-
-            <a href="criar.php"
-               class="bg-orange-600 text-white px-5 py-3 rounded-lg shadow hover:bg-orange-700 transition">
-                + Novo Instrumento
-            </a>
+        <div class="mb-8 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/10 p-8 shadow-2xl">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">🎸 Instrumentos</h1>
+                    <p class="text-slate-300 mt-2">Gerencie todos os instrumentos cadastrado na loja.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 items-stretch">
+                    <a href="../index.php" class="bg-slate-700 hover:bg-slate-600 text-white px-5 py-3 rounded-xl font-semibold shadow-lg transition duration-300 text-center">
+                        ← Página Inicial
+                    </a>
+                    <a href="../clientes/logout.php" class="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl font-semibold shadow-lg transition duration-300 text-center">
+                        Sair
+                    </a>
+                    <?php if ($isAdmin): ?>
+                    <a href="criar.php" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-3 rounded-xl font-semibold shadow-lg transition duration-300 text-center">
+                        + Novo Instrumento
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
+
+            <?php if (!empty($success)): ?>
+                <div class="p-4 bg-emerald-500/10 border border-emerald-400 text-emerald-100">
+                    <?= htmlspecialchars($success) ?>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($error)): ?>
+                <div class="p-4 bg-red-500/10 border border-red-400 text-red-100">
+                    <?= htmlspecialchars($error) ?>
+                </div>
+            <?php endif; ?>
 
             <table class="w-full">
 
@@ -78,18 +105,25 @@ $stmt->execute();
                         </td>
 
                         <td class="p-4 text-center">
-
-                            <a href="editar.php?id=<?= $instrumento['id'] ?>"
-                               class="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600">
-                                Editar
-                            </a>
-
-                            <a href="excluir.php?id=<?= $instrumento['id'] ?>"
-                               onclick="return confirm('Deseja excluir este instrumento?')"
-                               class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 ml-2">
-                                Excluir
-                            </a>
-
+                            <?php if ($isAdmin): ?>
+                                <a href="editar.php?id=<?= $instrumento['id'] ?>" class="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600">
+                                    Editar
+                                </a>
+                                <a href="excluir.php?id=<?= $instrumento['id'] ?>" onclick="return confirm('Deseja excluir este instrumento?')" class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 ml-2">
+                                    Excluir
+                                </a>
+                            <?php else: ?>
+                                <?php if ($instrumento['estoque'] > 0): ?>
+                                    <form method="post" action="comprar.php" class="inline">
+                                        <input type="hidden" name="id" value="<?= $instrumento['id'] ?>">
+                                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                                            Comprar
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <span class="text-red-300">Sem estoque</span>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </td>
 
                     </tr>

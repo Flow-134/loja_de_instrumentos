@@ -2,25 +2,36 @@
 session_start();
 include("../conexao.php");
 
-    if($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $email = $_POST['email'];
-        $senha = $_POST['senha'];
+$error = '';
 
-        $stmt = $conn->prepare("SELECT * FROM clientes WHERE email = :email AND senha = :senha");
-        $stmt->bindValue(":email", $email);
-        $stmt->bindValue(":senha", $senha);
-        $stmt->execute();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email'] ?? '');
+    $senha = $_POST['senha'] ?? '';
 
-        $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
-        if($cliente) {
-            $_SESSION['cliente_id'] = $cliente['id'];
-            $_SESSION['cliente_nome'] = $cliente['nome'];
-            header("Location: index.php");
-            exit;
-        } else {
-            echo "Email ou senha inválidos.";
+    $stmt = $conn->prepare("SELECT * FROM clientes WHERE email = :email");
+    $stmt->bindValue(":email", $email);
+    $stmt->execute();
+
+    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($cliente && (password_verify($senha, $cliente['senha']) || $cliente['senha'] === $senha)) {
+        $_SESSION['cliente_id'] = $cliente['id'];
+        $_SESSION['cliente_nome'] = $cliente['nome'];
+        $_SESSION['cliente_role'] = $cliente['role'] ?? 'customer';
+        // registra o último login
+        try {
+            $stmtUpdate = $conn->prepare("UPDATE clientes SET last_login = NOW() WHERE id = :id");
+            $stmtUpdate->bindValue(':id', $cliente['id'], PDO::PARAM_INT);
+            $stmtUpdate->execute();
+        } catch (Exception $e) {
+            // não bloquear o login se update falhar
         }
+        header("Location: ../index.php");
+        exit;
+    } else {
+        $error = 'Email ou senha inválidos.';
     }
+}
 
 ?>
 <!DOCTYPE html>
@@ -61,6 +72,12 @@ include("../conexao.php");
             </div>
 
             <form action="" method="post" class="space-y-5">
+
+                <?php if (!empty($error)): ?>
+                    <div class="text-red-400 text-sm bg-white/10 border border-red-500 rounded-xl px-4 py-3">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Email -->
                 <div>
@@ -110,6 +127,13 @@ include("../conexao.php");
             </form>
 
             <!-- Rodapé -->
+            <div class="mt-6 text-center">
+                <p class="text-gray-300 text-sm mb-3">
+                    Não tem conta ainda?
+                </p>
+                <a href="cadastro.php" class="inline-block text-orange-400 font-semibold hover:text-orange-200 transition">Criar uma conta</a>
+            </div>
+
             <div class="mt-6 text-center">
                 <p class="text-gray-400 text-sm">
                     🎸 Os melhores instrumentos para músicos apaixonados

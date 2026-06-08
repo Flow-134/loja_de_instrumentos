@@ -1,0 +1,52 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    container_name: loja-instrumentos
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - rede-loja-instrumentos
+
+  mysql:
+    image: mysql:8.0
+    container_name: loja_instrumentos_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: senha_root_123
+      MYSQL_DATABASE: loja_instrumentos
+      MYSQL_USER: usuario_app
+      MYSQL_PASSWORD: senha_app_123
+    volumes:
+      - dados_mysql:/var/lib/mysql
+      - ./Docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - rede-loja-instrumentos
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: loja_instrumentos_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: senha_root_123
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - rede-loja-instrumentos
+
+volumes:
+  dados_mysql: {}
+
+networks:
+  rede-loja-instrumentos:
+    driver: bridge

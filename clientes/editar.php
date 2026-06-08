@@ -9,10 +9,20 @@ include("../conexao.php");
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $nome = isset($_POST['nome']) ? $_POST['nome'] : '';
+        $nome = trim($_POST['nome'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $senha = $_POST['senha'] ?? '';
 
-        $stmt = $conn->prepare("UPDATE clientes SET nome = :nome WHERE id = :id");
+        if ($senha !== '') {
+            $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("UPDATE clientes SET nome = :nome, email = :email, senha = :senha WHERE id = :id");
+            $stmt->bindValue(':senha', $senhaHash);
+        } else {
+            $stmt = $conn->prepare("UPDATE clientes SET nome = :nome, email = :email WHERE id = :id");
+        }
+
         $stmt->bindValue(':nome', $nome);
+        $stmt->bindValue(':email', $email);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -35,7 +45,15 @@ include("../conexao.php");
         <form method="POST" class="space-y-4">
             <label class="block">
                 <span class="text-sm font-medium">Nome</span>
-                <input class="w-full border rounded-lg p-3 mt-1" type="text" id="nome" name="nome" value="<?= htmlspecialchars($cliente["nome"]) ?>">
+                <input class="w-full border rounded-lg p-3 mt-1" type="text" id="nome" name="nome" value="<?= htmlspecialchars($cliente["nome"]) ?>" required>
+            </label>
+            <label class="block">
+                <span class="text-sm font-medium">Email</span>
+                <input class="w-full border rounded-lg p-3 mt-1" type="email" id="email" name="email" value="<?= htmlspecialchars($cliente["email"]) ?>" required>
+            </label>
+            <label class="block">
+                <span class="text-sm font-medium">Senha (deixe em branco para manter)</span>
+                <input class="w-full border rounded-lg p-3 mt-1" type="password" id="senha" name="senha" placeholder="Nova senha">
             </label>
             <div class="flex gap-2">
                 <button class="bg-blue-600 text-white px-4 py-2 rounded-lg" type="submit">Salvar</button>

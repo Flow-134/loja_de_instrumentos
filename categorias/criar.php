@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bindValue(':nome', $nome);
     $stmt->execute();
 
-    header('Location: index.php');
+    header('Location: index.php'); 
     exit;
 
 }

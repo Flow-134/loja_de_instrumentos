@@ -13,6 +13,16 @@ $totalCategorias = $conn->query("SELECT COUNT(*) FROM categorias")->fetchColumn(
 
 $totalClientes = $conn->query("SELECT COUNT(*) FROM clientes")->fetchColumn();
 
+// Busca último login do usuário logado
+$lastLogin = null;
+$isAdmin = ($_SESSION['cliente_role'] ?? 'customer') === 'admin';
+if (isset($_SESSION['cliente_id'])) {
+    $stmtLast = $conn->prepare("SELECT last_login FROM clientes WHERE id = :id");
+    $stmtLast->bindValue(':id', $_SESSION['cliente_id'], PDO::PARAM_INT);
+    $stmtLast->execute();
+    $lastLogin = $stmtLast->fetchColumn();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -44,6 +54,18 @@ $totalClientes = $conn->query("SELECT COUNT(*) FROM clientes")->fetchColumn();
                 <p class="text-sm text-gray-400">
                     Painel Administrativo
                 </p>
+
+                <p class="text-xs text-gray-400 mt-1">Último acesso: <?php
+                    if (!empty($lastLogin)) {
+                        echo date('d/m/Y H:i', strtotime($lastLogin));
+                    } else {
+                        echo 'Nunca';
+                    }
+                ?></p>
+
+                <a href="clientes/logout.php" class="inline-block mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm transition duration-300">
+                    Sair
+                </a>
             </div>
 
         </div>
@@ -127,6 +149,7 @@ $totalClientes = $conn->query("SELECT COUNT(*) FROM clientes")->fetchColumn();
                 </div>
             </a>
 
+            <?php if ($isAdmin): ?>
             <!-- Categorias -->
             <a href="categorias/index.php">
                 <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 hover:scale-105 hover:border-orange-500 transition-all duration-300 shadow-xl">
@@ -164,6 +187,7 @@ $totalClientes = $conn->query("SELECT COUNT(*) FROM clientes")->fetchColumn();
 
                 </div>
             </a>
+            <?php endif; ?>
 
         </div>
 
