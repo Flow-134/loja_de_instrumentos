@@ -38,10 +38,6 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                        class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transition duration-300 text-center">
                         Sair
                     </a>
-                    <a href="novo.php"
-                       class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transition duration-300 text-center">
-                        + Novo Cliente
-                    </a>
                 </div>
             </div>
         </div>
