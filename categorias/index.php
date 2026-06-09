@@ -54,7 +54,9 @@ $resultado = $stmt;
 
                         <?php while($categoria = $resultado->fetch(PDO::FETCH_ASSOC)) { ?>
                             <tr class="border-b border-white/10 hover:bg-white/5 transition">
-                                <td class="p-4 text-slate-200">#<?= $categoria['id'] ?></td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center justify-center rounded-full bg-slate-700 px-3 py-1 text-slate-200 text-sm">#<?= $categoria['id'] ?></span>
+                                </td>
                                 <td class="p-4 text-white"><?= htmlspecialchars($categoria['nome']) ?></td>
                                 <td class="p-4 text-center">
                                     <?php if ($isAdmin): ?>

@@ -55,11 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         id="nome"
                         name="nome"
                         type="text"
-                        class="w-full rounded-2xl border border-white/20 bg-slate-950/80 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        class="w-full rounded-3xl border border-white/20 bg-slate-950/80 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-400"
                         placeholder="Nome da categoria"
                         required>
                 </div>
-                <button type="submit" class="w-full rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 transition duration-300 shadow-xl">Salvar</button>
+                <button type="submit" class="w-full rounded-3xl bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 transition duration-300 shadow-xl">Salvar</button>
             </form>
         </section>
     </main>
